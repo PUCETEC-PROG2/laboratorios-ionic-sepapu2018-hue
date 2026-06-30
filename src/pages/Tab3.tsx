@@ -1,17 +1,44 @@
-import { 
-  IonCard, 
-  IonCardContent, 
-  IonCardSubtitle, 
-  IonCardTitle, 
-  IonContent, 
-  IonHeader, 
-  IonPage, 
-  IonTitle, 
-  IonToolbar 
+import React from 'react';
+import {
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonText,
+  IonTitle,
+  IonToolbar,
+  useIonViewDidEnter
 } from '@ionic/react';
+
 import './Tab3.css';
+import { GithubUser } from '../interfaces/GithubUser';
+import { fetchUserInfo } from '../services/GithubService';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Tab3: React.FC = () => {
+  const [userInfo, setUserInfo] = React.useState<GithubUser | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState("");
+
+  useIonViewDidEnter(() => {
+    setLoading(true);
+
+    fetchUserInfo()
+      .then((user) => {
+        setUserInfo(user);
+      })
+      .catch((error) => {
+        setErrorMsg("Error al cargar la información del usuario: " + error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  });
+
   return (
     <IonPage>
       <IonHeader>
@@ -19,32 +46,41 @@ const Tab3: React.FC = () => {
           <IonTitle>Perfil</IonTitle>
         </IonToolbar>
       </IonHeader>
+
       <IonContent fullscreen>
         <IonHeader collapse="condense">
           <IonToolbar>
             <IonTitle size="large">Perfil</IonTitle>
           </IonToolbar>
         </IonHeader>
-        
+
         <div className="card-container">
-          <IonCard className="card">
-            <img 
-              src="https://avatars.githubusercontent.com/u/48026030?v=4" 
-              alt="Avatar" 
-            />
-            <IonHeader>
-              <IonCardTitle>Narveaz Jose</IonCardTitle>
-              <IonCardSubtitle>Narvaez Jose</IonCardSubtitle>
+          {userInfo && (
+            <IonCard className="card">
+              <img
+                src={userInfo.avatar_url}
+                alt={userInfo.login}
+              />
+
+              <IonCardHeader>
+                <IonCardTitle>{userInfo.name}</IonCardTitle>
+                <IonCardSubtitle>@{userInfo.login}</IonCardSubtitle>
+              </IonCardHeader>
+
               <IonCardContent>
-                <p>
-                  Desarrollador de software con experiencia en
-                  aplicaciones móviles y web. Apasionado por
-                  la tecnología.
-                </p>
+                <p>{userInfo.bio}</p>
               </IonCardContent>
-            </IonHeader>
-          </IonCard>
+            </IonCard>
+          )}
+
+          {errorMsg && (
+            <IonText color="danger">
+              <p>{errorMsg}</p>
+            </IonText>
+          )}
         </div>
+
+        {loading && <LoadingSpinner />}
       </IonContent>
     </IonPage>
   );
