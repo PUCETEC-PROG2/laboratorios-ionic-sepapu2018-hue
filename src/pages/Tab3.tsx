@@ -15,28 +15,18 @@ import {
 } from '@ionic/react';
 
 import './Tab3.css';
+import profilePhoto from '../assets/profile.jpg';
 import { GithubUser } from '../interfaces/GithubUser';
 import { fetchUserInfo } from '../services/GithubService';
-import LoadingSpinner from '../components/LoadingSpinner';
 
 const Tab3: React.FC = () => {
-  const [userInfo, setUserInfo] = React.useState<GithubUser | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  const [githubUser, setGithubUser] = React.useState<GithubUser | null>(null);
   const [errorMsg, setErrorMsg] = React.useState("");
 
   useIonViewDidEnter(() => {
-    setLoading(true);
-
     fetchUserInfo()
-      .then((user) => {
-        setUserInfo(user);
-      })
-      .catch((error) => {
-        setErrorMsg("Error al cargar la información del usuario: " + error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .then((user) => setGithubUser(user))
+      .catch((error) => setErrorMsg("No se pudo conectar con GitHub: " + error));
   });
 
   return (
@@ -55,32 +45,37 @@ const Tab3: React.FC = () => {
         </IonHeader>
 
         <div className="card-container">
-          {userInfo && (
-            <IonCard className="card">
-              <img
-                src={userInfo.avatar_url}
-                alt={userInfo.login}
-              />
+          <IonCard className="card">
+            <img
+              src={profilePhoto}
+              alt="Jose Narvaez"
+            />
 
-              <IonCardHeader>
-                <IonCardTitle>{userInfo.name}</IonCardTitle>
-                <IonCardSubtitle>@{userInfo.login}</IonCardSubtitle>
-              </IonCardHeader>
+            <IonCardHeader>
+              <IonCardTitle>Jose Narvaez</IonCardTitle>
+              <IonCardSubtitle>Estudiante de Desarrollo de Software</IonCardSubtitle>
+            </IonCardHeader>
 
-              <IonCardContent>
-                <p>{userInfo.bio}</p>
-              </IonCardContent>
-            </IonCard>
-          )}
+            <IonCardContent>
+              <p>
+                Apasionado por la programación y el desarrollo de aplicaciones móviles con Ionic y React.
+                Este es mi perfil de GitHub y los repositorios que he creado durante el curso.
+              </p>
 
-          {errorMsg && (
-            <IonText color="danger">
-              <p>{errorMsg}</p>
-            </IonText>
-          )}
+              {githubUser && (
+                <IonText color="medium">
+                  <p className="ion-no-margin">Conectado como @{githubUser.login}</p>
+                </IonText>
+              )}
+
+              {errorMsg && (
+                <IonText color="danger">
+                  <p className="ion-no-margin">{errorMsg}</p>
+                </IonText>
+              )}
+            </IonCardContent>
+          </IonCard>
         </div>
-
-        {loading && <LoadingSpinner />}
       </IonContent>
     </IonPage>
   );

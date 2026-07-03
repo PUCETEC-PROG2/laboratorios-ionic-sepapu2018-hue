@@ -63,3 +63,31 @@ export const createRepository = async (
     throw error;
   }
 };
+
+// ✅ NUEVO: actualizar repositorio
+export const updateRepository = async (
+  owner: string,
+  repoName: string,
+  updates: { name?: string; description?: string; private?: boolean }
+): Promise<Repository> => {
+  try {
+    const response = await apiClient.patch(`/repos/${owner}/${repoName}`, updates);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+// ✅ NUEVO: eliminar repositorio
+export const deleteRepository = async (
+  owner: string,
+  repoName: string
+): Promise<void> => {
+  try {
+    await apiClient.delete(`/repos/${owner}/${repoName}`);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
